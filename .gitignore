@@ -1,0 +1,10 @@
+*.sln
+*.sdf
+*.suo
+*.opensdf
+*.user
+*.filters
+bin/
+obj/
+Debug/
+Release/

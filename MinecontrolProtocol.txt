@@ -1,0 +1,80 @@
+﻿Minecontrol Protocol Draft
+--------------------------------------------------------------------
+This document describes the Minecontrol protocol used by Minecontrol
+servers and clients for communication. The protocol is text based,
+simple, and extendable for future functionality.
+--------------------------------------------------------------------
+The protocol requires RSA encryption using the SSL crypto library.
+This feature is used to encrypt certain fields, not the entire data
+stream. A DLL is provided with this project in the Lib\ folder that
+provides a managed .NET interface to the needed functions from the
+SSL crypto library.
+
+All encrypted data is encoded in hexadecimal text. Each byte is 
+separated by whitespace. e.g.:
+	89 F5 A8 ...
+
+The EncryptKey sent with a server's GREETINGS is encoded like so
+	PUBLIC-MODULUS | PUBLIC-EXPONENT
+	so it would look a little something like this:
+		89 F5 A8 ... | 01 00 01
+--------------------------------------------------------------------
+Message format: [VBLF] represents the single newline character ("\n")
+
+	(request)
+	MINECONTROL-PROTO[VBLF]
+	COMMAND[VBLF]
+	Field: value[VBLF]
+	(etc.)[VBLF]
+	[VBLF]
+
+	(response)
+	MINECONTROL-PROTO[VBLF]
+	RESPONSE-COMMAND[VBLF]
+	Field: value[VBLF]
+	(etc.)[VBLF]
+	[VBLF]
+-------------------------------------------------------------------
+A client initiates a connection with a Minecontrol server on port 
+44446. It sends the HELLO command with its name and version. The
+server responds with a GREETINGS response-command, also including
+its version and name plus an RSA encryption key. The client is
+now open to issue commands. Each command demands a single response
+and the client should wait for it.
+-------------------------------------------------------------------
+Commands (that the client may issue):
+        HELLO
+         Name: client-name
+         Version: client-version
+        LOGIN
+         Username: username-value
+         Password: encrypted-password-value
+        LOGOUT
+        START
+         IsNew: true-or-false
+         ServerName: required-server-directory-name
+         ServerTime: option-time-limit
+         PropertyName: minecraft-server-property-value
+        STATUS
+        EXTEND
+         ServerID: integer-id
+         Amount: integer-hours-to-extend
+        STOP
+         ServerID: integer-id
+        CONSOLE
+        SHUTDOWN
+-------------------------------------------------------------------
+Response-Commands (with which the server may respond):
+        GREETINGS
+         Name: server-name
+         Version: server-version
+         EncryptKey: public-key-spec. (see SSL crypto section above)
+        MESSAGE
+         Payload: message-to-display
+		ERROR
+		 Payload: error-to-display
+        LIST-MESSAGE
+         Item: single-message-to-display
+         (etc)
+        LIST-ERROR
+         Item: single-error-to-display
