@@ -13,6 +13,7 @@ Module MinecontrolClient
         Dim mainWindow As MainForm
 
         mainWindow = New MainForm
+        mainWindow.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath)
 
         Application.Run(mainWindow)
     End Sub
