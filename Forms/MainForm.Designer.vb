@@ -34,6 +34,14 @@ Partial Class MainForm
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CommandToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.LoginToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.LogoutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StartToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StopToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ExtendToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ExecMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StatusToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ConsoleToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.boxHost = New System.Windows.Forms.TextBox()
@@ -48,12 +56,6 @@ Partial Class MainForm
         Me.boxCommand = New System.Windows.Forms.TextBox()
         Me.btnConnect = New System.Windows.Forms.Button()
         Me.btnDisconnect = New System.Windows.Forms.Button()
-        Me.LoginToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.LogoutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.StartToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.StopToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ExtendToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.StatusToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.udPortSelect, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -127,10 +129,58 @@ Partial Class MainForm
         '
         'CommandToolStripMenuItem
         '
-        Me.CommandToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.LoginToolStripMenuItem, Me.LogoutToolStripMenuItem, Me.StartToolStripMenuItem, Me.StopToolStripMenuItem, Me.ExtendToolStripMenuItem, Me.StatusToolStripMenuItem})
+        Me.CommandToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.LoginToolStripMenuItem, Me.LogoutToolStripMenuItem, Me.StartToolStripMenuItem, Me.StopToolStripMenuItem, Me.ExtendToolStripMenuItem, Me.ExecMenuItem, Me.StatusToolStripMenuItem, Me.ConsoleToolStripMenuItem})
         Me.CommandToolStripMenuItem.Name = "CommandToolStripMenuItem"
         Me.CommandToolStripMenuItem.Size = New System.Drawing.Size(76, 20)
         Me.CommandToolStripMenuItem.Text = "Command"
+        '
+        'LoginToolStripMenuItem
+        '
+        Me.LoginToolStripMenuItem.Name = "LoginToolStripMenuItem"
+        Me.LoginToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.LoginToolStripMenuItem.Text = "Login"
+        '
+        'LogoutToolStripMenuItem
+        '
+        Me.LogoutToolStripMenuItem.Name = "LogoutToolStripMenuItem"
+        Me.LogoutToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.LogoutToolStripMenuItem.Text = "Logout"
+        '
+        'StartToolStripMenuItem
+        '
+        Me.StartToolStripMenuItem.Name = "StartToolStripMenuItem"
+        Me.StartToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.StartToolStripMenuItem.Text = "Start"
+        '
+        'StopToolStripMenuItem
+        '
+        Me.StopToolStripMenuItem.Name = "StopToolStripMenuItem"
+        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.StopToolStripMenuItem.Text = "Stop"
+        '
+        'ExtendToolStripMenuItem
+        '
+        Me.ExtendToolStripMenuItem.Name = "ExtendToolStripMenuItem"
+        Me.ExtendToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.ExtendToolStripMenuItem.Text = "Extend"
+        '
+        'ExecMenuItem
+        '
+        Me.ExecMenuItem.Name = "ExecMenuItem"
+        Me.ExecMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.ExecMenuItem.Text = "Exec"
+        '
+        'StatusToolStripMenuItem
+        '
+        Me.StatusToolStripMenuItem.Name = "StatusToolStripMenuItem"
+        Me.StatusToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.StatusToolStripMenuItem.Text = "Status"
+        '
+        'ConsoleToolStripMenuItem
+        '
+        Me.ConsoleToolStripMenuItem.Name = "ConsoleToolStripMenuItem"
+        Me.ConsoleToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.ConsoleToolStripMenuItem.Text = "Console"
         '
         'HelpToolStripMenuItem
         '
@@ -261,42 +311,6 @@ Partial Class MainForm
         Me.btnDisconnect.Text = "Disconnect"
         Me.btnDisconnect.UseVisualStyleBackColor = True
         '
-        'LoginToolStripMenuItem
-        '
-        Me.LoginToolStripMenuItem.Name = "LoginToolStripMenuItem"
-        Me.LoginToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.LoginToolStripMenuItem.Text = "Login"
-        '
-        'LogoutToolStripMenuItem
-        '
-        Me.LogoutToolStripMenuItem.Name = "LogoutToolStripMenuItem"
-        Me.LogoutToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.LogoutToolStripMenuItem.Text = "Logout"
-        '
-        'StartToolStripMenuItem
-        '
-        Me.StartToolStripMenuItem.Name = "StartToolStripMenuItem"
-        Me.StartToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.StartToolStripMenuItem.Text = "Start"
-        '
-        'StopToolStripMenuItem
-        '
-        Me.StopToolStripMenuItem.Name = "StopToolStripMenuItem"
-        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.StopToolStripMenuItem.Text = "Stop"
-        '
-        'ExtendToolStripMenuItem
-        '
-        Me.ExtendToolStripMenuItem.Name = "ExtendToolStripMenuItem"
-        Me.ExtendToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.ExtendToolStripMenuItem.Text = "Extend"
-        '
-        'StatusToolStripMenuItem
-        '
-        Me.StatusToolStripMenuItem.Name = "StatusToolStripMenuItem"
-        Me.StatusToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.StatusToolStripMenuItem.Text = "Status"
-        '
         'MainForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -360,4 +374,6 @@ Partial Class MainForm
     Friend WithEvents StopToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ExtendToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents StatusToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ExecMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ConsoleToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
 End Class

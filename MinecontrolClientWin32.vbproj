@@ -63,6 +63,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeBase\MinecontrolClient.vb" />
+    <Compile Include="CodeBase\MinecontrolMessage.vb" />
+    <Compile Include="CodeBase\ProtocolClient.vb" />
     <Compile Include="Forms\MainForm.Designer.vb">
       <DependentUpon>MainForm.vb</DependentUpon>
     </Compile>
@@ -72,6 +74,10 @@
     <Compile Include="My Project\AssemblyInfo.vb" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="ManagedSSL">
+      <HintPath>ManagedSSL\Release\ManagedSSL.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />

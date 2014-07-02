@@ -59,12 +59,21 @@ Commands (that the client may issue):
         EXTEND
          ServerID: integer-id
          Amount: integer-hours-to-extend
+		EXEC
+		 ServerID: integer-id
+		 Command: string-command-line
         STOP
          ServerID: integer-id
         CONSOLE
+		 ServerID: integer-id
+		CONSOLE-COMMAND
+		 ServerCommand: string-command
+		 (may continue)
+		CONSOLE-QUIT
         SHUTDOWN
 -------------------------------------------------------------------
 Response-Commands (with which the server may respond):
+ *this client will never send any of these
         GREETINGS
          Name: server-name
          Version: server-version
@@ -78,3 +87,6 @@ Response-Commands (with which the server may respond):
          (etc)
         LIST-ERROR
          Item: single-error-to-display
+		CONSOLE-MESSAGE
+		 Status:  established|failed|message|error|shutdown
+		 Payload: string-message

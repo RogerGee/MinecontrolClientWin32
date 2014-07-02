@@ -8,6 +8,8 @@ Imports System.Windows.Forms
 Imports Microsoft.VisualBasic
 
 Module MinecontrolClient
+    Public Const CLIENT_PROGRAM_NAME = "MinecontrolClientWin32"
+    Public ReadOnly CLIENT_PROGRAM_VERSION As String = Application.ProductVersion
 
     Sub Main()
         Dim mainWindow As MainForm
