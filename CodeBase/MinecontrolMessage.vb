@@ -75,8 +75,18 @@ Class MinecontrolMessage
                 Exit Do
             End If
 
-            Dim tokens = line.Split(separator)
-            If tokens.Length <> 2 Then
+            Dim i = 0
+            Dim tokens(0 To 1) As String
+            While i < line.Length AndAlso line(i) <> ":"
+                tokens(0) += line(i)
+                i += 1
+            End While
+            i += 1
+            While i < line.Length
+                tokens(1) += line(i)
+                i += 1
+            End While
+            If tokens(0).Length = 0 OrElse tokens(1).Length = 0 Then
                 Throw New MinecontrolMessageFormatException("The server didn't send a correct message.")
             End If
 
@@ -94,10 +104,16 @@ Class MinecontrolMessage
 
     Function GetFieldValue(ByVal Name As String, Optional ByVal Position As Integer = 0) As String
         Dim i = 0
+        Dim index = 0
 
+        Name = Name.ToLower()
         Do While i < fields.Count
-            If fields(i).Key = Name AndAlso Position = i Then
-                Return fields(i).Value
+            If fields(i).Key.ToLower() = Name Then
+                If index = Position Then
+                    Return fields(i).Value
+                End If
+
+                index += 1
             End If
 
             i += 1

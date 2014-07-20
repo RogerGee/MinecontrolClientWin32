@@ -65,6 +65,12 @@
     <Compile Include="CodeBase\MinecontrolClient.vb" />
     <Compile Include="CodeBase\MinecontrolMessage.vb" />
     <Compile Include="CodeBase\ProtocolClient.vb" />
+    <Compile Include="Forms\FieldInputDialog.Designer.vb">
+      <DependentUpon>FieldInputDialog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FieldInputDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\MainForm.Designer.vb">
       <DependentUpon>MainForm.vb</DependentUpon>
     </Compile>
@@ -74,18 +80,23 @@
     <Compile Include="My Project\AssemblyInfo.vb" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="ManagedSSL">
-      <HintPath>ManagedSSL\Release\ManagedSSL.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\FieldInputDialog.resx">
+      <DependentUpon>FieldInputDialog.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.vb</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="ManagedSSL\ManagedSSL.vcxproj">
+      <Project>{0C0ABECD-2DC8-4092-8639-ECFE64977BC8}</Project>
+      <Name>ManagedSSL</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

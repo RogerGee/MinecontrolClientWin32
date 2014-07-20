@@ -24,12 +24,7 @@ Partial Class MainForm
     Private Sub InitializeComponent()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ExportProfileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ExportUserToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
-        Me.ImportProfileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ImportUserToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
+        Me.tsSaveProfile = New System.Windows.Forms.ToolStripMenuItem()
         Me.SaveServerOutputAsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -42,6 +37,7 @@ Partial Class MainForm
         Me.ExecMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StatusToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ConsoleToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ShutdownToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.boxHost = New System.Windows.Forms.TextBox()
@@ -56,6 +52,7 @@ Partial Class MainForm
         Me.boxCommand = New System.Windows.Forms.TextBox()
         Me.btnConnect = New System.Windows.Forms.Button()
         Me.btnDisconnect = New System.Windows.Forms.Button()
+        Me.lboxConfig = New System.Windows.Forms.ListBox()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.udPortSelect, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -65,50 +62,22 @@ Partial Class MainForm
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.CommandToolStripMenuItem, Me.HelpToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(365, 24)
+        Me.MenuStrip1.Size = New System.Drawing.Size(773, 24)
         Me.MenuStrip1.TabIndex = 0
         Me.MenuStrip1.Text = "MenuStrip1"
         '
         'FileToolStripMenuItem
         '
-        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExportProfileToolStripMenuItem, Me.ExportUserToolStripMenuItem, Me.ToolStripSeparator3, Me.ImportProfileToolStripMenuItem, Me.ImportUserToolStripMenuItem, Me.ToolStripSeparator1, Me.SaveServerOutputAsToolStripMenuItem, Me.ToolStripSeparator2, Me.ExitToolStripMenuItem})
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tsSaveProfile, Me.SaveServerOutputAsToolStripMenuItem, Me.ToolStripSeparator2, Me.ExitToolStripMenuItem})
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.FileToolStripMenuItem.Text = "File"
         '
-        'ExportProfileToolStripMenuItem
+        'tsSaveProfile
         '
-        Me.ExportProfileToolStripMenuItem.Name = "ExportProfileToolStripMenuItem"
-        Me.ExportProfileToolStripMenuItem.Size = New System.Drawing.Size(199, 22)
-        Me.ExportProfileToolStripMenuItem.Text = "Export Profile"
-        '
-        'ExportUserToolStripMenuItem
-        '
-        Me.ExportUserToolStripMenuItem.Name = "ExportUserToolStripMenuItem"
-        Me.ExportUserToolStripMenuItem.Size = New System.Drawing.Size(199, 22)
-        Me.ExportUserToolStripMenuItem.Text = "Export User"
-        '
-        'ToolStripSeparator3
-        '
-        Me.ToolStripSeparator3.Name = "ToolStripSeparator3"
-        Me.ToolStripSeparator3.Size = New System.Drawing.Size(196, 6)
-        '
-        'ImportProfileToolStripMenuItem
-        '
-        Me.ImportProfileToolStripMenuItem.Name = "ImportProfileToolStripMenuItem"
-        Me.ImportProfileToolStripMenuItem.Size = New System.Drawing.Size(199, 22)
-        Me.ImportProfileToolStripMenuItem.Text = "Import Profile"
-        '
-        'ImportUserToolStripMenuItem
-        '
-        Me.ImportUserToolStripMenuItem.Name = "ImportUserToolStripMenuItem"
-        Me.ImportUserToolStripMenuItem.Size = New System.Drawing.Size(199, 22)
-        Me.ImportUserToolStripMenuItem.Text = "Import User"
-        '
-        'ToolStripSeparator1
-        '
-        Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(196, 6)
+        Me.tsSaveProfile.Name = "tsSaveProfile"
+        Me.tsSaveProfile.Size = New System.Drawing.Size(199, 22)
+        Me.tsSaveProfile.Text = "Save Profile"
         '
         'SaveServerOutputAsToolStripMenuItem
         '
@@ -129,7 +98,7 @@ Partial Class MainForm
         '
         'CommandToolStripMenuItem
         '
-        Me.CommandToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.LoginToolStripMenuItem, Me.LogoutToolStripMenuItem, Me.StartToolStripMenuItem, Me.StopToolStripMenuItem, Me.ExtendToolStripMenuItem, Me.ExecMenuItem, Me.StatusToolStripMenuItem, Me.ConsoleToolStripMenuItem})
+        Me.CommandToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.LoginToolStripMenuItem, Me.LogoutToolStripMenuItem, Me.StartToolStripMenuItem, Me.StopToolStripMenuItem, Me.ExtendToolStripMenuItem, Me.ExecMenuItem, Me.StatusToolStripMenuItem, Me.ConsoleToolStripMenuItem, Me.ShutdownToolStripMenuItem})
         Me.CommandToolStripMenuItem.Name = "CommandToolStripMenuItem"
         Me.CommandToolStripMenuItem.Size = New System.Drawing.Size(76, 20)
         Me.CommandToolStripMenuItem.Text = "Command"
@@ -137,50 +106,56 @@ Partial Class MainForm
         'LoginToolStripMenuItem
         '
         Me.LoginToolStripMenuItem.Name = "LoginToolStripMenuItem"
-        Me.LoginToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.LoginToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
         Me.LoginToolStripMenuItem.Text = "Login"
         '
         'LogoutToolStripMenuItem
         '
         Me.LogoutToolStripMenuItem.Name = "LogoutToolStripMenuItem"
-        Me.LogoutToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.LogoutToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
         Me.LogoutToolStripMenuItem.Text = "Logout"
         '
         'StartToolStripMenuItem
         '
         Me.StartToolStripMenuItem.Name = "StartToolStripMenuItem"
-        Me.StartToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.StartToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
         Me.StartToolStripMenuItem.Text = "Start"
         '
         'StopToolStripMenuItem
         '
         Me.StopToolStripMenuItem.Name = "StopToolStripMenuItem"
-        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
         Me.StopToolStripMenuItem.Text = "Stop"
         '
         'ExtendToolStripMenuItem
         '
         Me.ExtendToolStripMenuItem.Name = "ExtendToolStripMenuItem"
-        Me.ExtendToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.ExtendToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
         Me.ExtendToolStripMenuItem.Text = "Extend"
         '
         'ExecMenuItem
         '
         Me.ExecMenuItem.Name = "ExecMenuItem"
-        Me.ExecMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.ExecMenuItem.Size = New System.Drawing.Size(128, 22)
         Me.ExecMenuItem.Text = "Exec"
         '
         'StatusToolStripMenuItem
         '
         Me.StatusToolStripMenuItem.Name = "StatusToolStripMenuItem"
-        Me.StatusToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.StatusToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
         Me.StatusToolStripMenuItem.Text = "Status"
         '
         'ConsoleToolStripMenuItem
         '
         Me.ConsoleToolStripMenuItem.Name = "ConsoleToolStripMenuItem"
-        Me.ConsoleToolStripMenuItem.Size = New System.Drawing.Size(117, 22)
+        Me.ConsoleToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
         Me.ConsoleToolStripMenuItem.Text = "Console"
+        '
+        'ShutdownToolStripMenuItem
+        '
+        Me.ShutdownToolStripMenuItem.Name = "ShutdownToolStripMenuItem"
+        Me.ShutdownToolStripMenuItem.Size = New System.Drawing.Size(128, 22)
+        Me.ShutdownToolStripMenuItem.Text = "Shutdown"
         '
         'HelpToolStripMenuItem
         '
@@ -217,7 +192,7 @@ Partial Class MainForm
         '
         Me.boxUname.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.boxUname.Font = New System.Drawing.Font("Courier New", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.boxUname.Location = New System.Drawing.Point(69, 63)
+        Me.boxUname.Location = New System.Drawing.Point(434, 37)
         Me.boxUname.Name = "boxUname"
         Me.boxUname.Size = New System.Drawing.Size(169, 20)
         Me.boxUname.TabIndex = 2
@@ -225,7 +200,7 @@ Partial Class MainForm
         'udPortSelect
         '
         Me.udPortSelect.Font = New System.Drawing.Font("Courier New", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.udPortSelect.Location = New System.Drawing.Point(285, 32)
+        Me.udPortSelect.Location = New System.Drawing.Point(50, 69)
         Me.udPortSelect.Maximum = New Decimal(New Integer() {65535, 0, 0, 0})
         Me.udPortSelect.Minimum = New Decimal(New Integer() {1000, 0, 0, 0})
         Me.udPortSelect.Name = "udPortSelect"
@@ -236,7 +211,7 @@ Partial Class MainForm
         'lblPort
         '
         Me.lblPort.AutoSize = True
-        Me.lblPort.Location = New System.Drawing.Point(250, 34)
+        Me.lblPort.Location = New System.Drawing.Point(9, 71)
         Me.lblPort.Name = "lblPort"
         Me.lblPort.Size = New System.Drawing.Size(29, 13)
         Me.lblPort.TabIndex = 7
@@ -245,7 +220,7 @@ Partial Class MainForm
         'lblUsername
         '
         Me.lblUsername.AutoSize = True
-        Me.lblUsername.Location = New System.Drawing.Point(9, 66)
+        Me.lblUsername.Location = New System.Drawing.Point(374, 40)
         Me.lblUsername.Name = "lblUsername"
         Me.lblUsername.Size = New System.Drawing.Size(58, 13)
         Me.lblUsername.TabIndex = 8
@@ -255,7 +230,7 @@ Partial Class MainForm
         '
         Me.boxPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.boxPassword.Font = New System.Drawing.Font("Courier New", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.boxPassword.Location = New System.Drawing.Point(69, 91)
+        Me.boxPassword.Location = New System.Drawing.Point(434, 69)
         Me.boxPassword.Name = "boxPassword"
         Me.boxPassword.Size = New System.Drawing.Size(169, 20)
         Me.boxPassword.TabIndex = 3
@@ -264,7 +239,7 @@ Partial Class MainForm
         'lblPassword
         '
         Me.lblPassword.AutoSize = True
-        Me.lblPassword.Location = New System.Drawing.Point(9, 94)
+        Me.lblPassword.Location = New System.Drawing.Point(374, 71)
         Me.lblPassword.Name = "lblPassword"
         Me.lblPassword.Size = New System.Drawing.Size(56, 13)
         Me.lblPassword.TabIndex = 10
@@ -274,10 +249,10 @@ Partial Class MainForm
         '
         Me.rboxOutput.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.rboxOutput.Font = New System.Drawing.Font("Courier New", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.rboxOutput.Location = New System.Drawing.Point(0, 144)
+        Me.rboxOutput.Location = New System.Drawing.Point(0, 124)
         Me.rboxOutput.Name = "rboxOutput"
         Me.rboxOutput.ReadOnly = True
-        Me.rboxOutput.Size = New System.Drawing.Size(365, 262)
+        Me.rboxOutput.Size = New System.Drawing.Size(773, 282)
         Me.rboxOutput.TabIndex = 13
         Me.rboxOutput.TabStop = False
         Me.rboxOutput.Text = ""
@@ -286,15 +261,15 @@ Partial Class MainForm
         '
         Me.boxCommand.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.boxCommand.Font = New System.Drawing.Font("Courier New", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.boxCommand.Location = New System.Drawing.Point(12, 118)
+        Me.boxCommand.Location = New System.Drawing.Point(12, 98)
         Me.boxCommand.Name = "boxCommand"
-        Me.boxCommand.Size = New System.Drawing.Size(341, 20)
+        Me.boxCommand.Size = New System.Drawing.Size(749, 20)
         Me.boxCommand.TabIndex = 4
         '
         'btnConnect
         '
         Me.btnConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnConnect.Location = New System.Drawing.Point(258, 63)
+        Me.btnConnect.Location = New System.Drawing.Point(256, 34)
         Me.btnConnect.Name = "btnConnect"
         Me.btnConnect.Size = New System.Drawing.Size(75, 23)
         Me.btnConnect.TabIndex = 17
@@ -304,18 +279,29 @@ Partial Class MainForm
         'btnDisconnect
         '
         Me.btnDisconnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnDisconnect.Location = New System.Drawing.Point(258, 89)
+        Me.btnDisconnect.Location = New System.Drawing.Point(256, 66)
         Me.btnDisconnect.Name = "btnDisconnect"
         Me.btnDisconnect.Size = New System.Drawing.Size(75, 23)
         Me.btnDisconnect.TabIndex = 18
         Me.btnDisconnect.Text = "Disconnect"
         Me.btnDisconnect.UseVisualStyleBackColor = True
         '
+        'lboxConfig
+        '
+        Me.lboxConfig.Font = New System.Drawing.Font("Courier New", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lboxConfig.FormattingEnabled = True
+        Me.lboxConfig.ItemHeight = 14
+        Me.lboxConfig.Location = New System.Drawing.Point(609, 32)
+        Me.lboxConfig.Name = "lboxConfig"
+        Me.lboxConfig.Size = New System.Drawing.Size(152, 60)
+        Me.lboxConfig.TabIndex = 19
+        '
         'MainForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(365, 403)
+        Me.ClientSize = New System.Drawing.Size(773, 403)
+        Me.Controls.Add(Me.lboxConfig)
         Me.Controls.Add(Me.btnDisconnect)
         Me.Controls.Add(Me.btnConnect)
         Me.Controls.Add(Me.boxCommand)
@@ -353,15 +339,9 @@ Partial Class MainForm
     Friend WithEvents lblUsername As System.Windows.Forms.Label
     Friend WithEvents boxPassword As System.Windows.Forms.TextBox
     Friend WithEvents lblPassword As System.Windows.Forms.Label
-    Friend WithEvents ExportProfileToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents ExportUserToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents ToolStripSeparator1 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents SaveServerOutputAsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ToolStripSeparator2 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents ExitToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents ToolStripSeparator3 As System.Windows.Forms.ToolStripSeparator
-    Friend WithEvents ImportProfileToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents ImportUserToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents rboxOutput As System.Windows.Forms.RichTextBox
     Friend WithEvents boxCommand As System.Windows.Forms.TextBox
     Friend WithEvents HelpToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
@@ -376,4 +356,7 @@ Partial Class MainForm
     Friend WithEvents StatusToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ExecMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ConsoleToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ShutdownToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents tsSaveProfile As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents lboxConfig As System.Windows.Forms.ListBox
 End Class

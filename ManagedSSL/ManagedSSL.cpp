@@ -35,7 +35,7 @@ CryptoSession::CryptoSession(String^ EncryptKey)
 		// get individual digits of byte
 		for (Int32 j = 0;j < 2;++j, ++i) {
 			if (EncryptKey[i]>='0' && EncryptKey[i]<='9')
-				value = (unsigned char)(EncryptKey[i] - L'0');
+				digits[j] = (unsigned char)(EncryptKey[i] - L'0');
 			else if (EncryptKey[i]>='A' && EncryptKey[i]<='F')
 				digits[j] = (unsigned char)(EncryptKey[i] - 'A' + 10);
 			else if (EncryptKey[i]>='a' && EncryptKey[i]<='f')
@@ -44,7 +44,7 @@ CryptoSession::CryptoSession(String^ EncryptKey)
 				throw gcnew CryptoException("Bad encrypt key format");
 		}
 		// compute value of byte
-		value = (digits[0]<<8) & digits[1];
+		value = (digits[0]<<4) | digits[1];
 		if (!foundN) {
 			if (topN >= 1024)
 				throw gcnew CryptoException("Encrypt key is too large");
@@ -98,11 +98,11 @@ bool CryptoSession::EncryptBuffer(String^ Source,String^% Destination)
 			digits[1] = encrypted[i] % 16;
 			for (Int32 j = 0;j < 2;++j) {
 				if (digits[j]>=0 && digits[j]<=9)
-					Destination += '0'+digits[j];
+					Destination += Char(L'0' + digits[j]);
 				else if (digits[j]>=10 && digits[j]<=15)
-					Destination += 'A'+digits[j];
+					Destination += Char(L'A' + (digits[j]-10));
 			}
-			Destination += ' ';
+			Destination += L' ';
 		}
 		return true;
 	}

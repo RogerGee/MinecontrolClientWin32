@@ -29,7 +29,6 @@ Class ProtocolClient
     Private encryptor As CryptoSession
 
     Sub New(ByVal Host As String, ByVal Port As String)
-        Dim addrs = Dns.GetHostEntry(Host)
         Dim nport As Integer
 
         If Not Integer.TryParse(Port, nport) Then
@@ -58,6 +57,7 @@ Class ProtocolClient
         ' setup stream reader and writer to simplify IO operations
         Dim netStream = New NetworkStream(sock)
         writer = New StreamWriter(netStream)
+        writer.AutoFlush = True
         reader = New StreamReader(netStream)
 
         ' attempt to perform HELLO negotiation
@@ -72,11 +72,19 @@ Class ProtocolClient
         End If
         Try
             server_name = response.GetFieldValue("name")
-            server_name = response.GetFieldValue("version")
+            server_version = response.GetFieldValue("version")
             encryptor = New CryptoSession(response.GetFieldValue("encryptkey"))
         Catch ex As Exception
             Throw New ProtocolClientException("The server didn't greet us correctly.")
         End Try
+    End Sub
+
+    Sub Disconnect()
+        writer.Close()
+        reader.Close()
+        sock.Shutdown(SocketShutdown.Both)
+        sock.Close()
+        sock = Nothing
     End Sub
 
     Function IssueGenericCommand(ByVal Command As String, Optional ByVal Fields As Collection(Of KeyValuePair(Of String, String)) = Nothing) As String
@@ -107,6 +115,7 @@ Class ProtocolClient
         request = New MinecontrolMessage("LOGIN")
         request.AddField("Username", Username)
         request.AddField("Password", enc_password)
+        writer.Write(request.Message)
 
         response = New MinecontrolMessage(reader)
         Return response_to_string(response)
@@ -168,6 +177,10 @@ Class ProtocolClient
         Return response_to_string(New MinecontrolMessage(reader))
     End Function
 
+    Overrides Function ToString() As String
+        Return remote.ToString()
+    End Function
+
     Private Function response_to_string(ByVal response As MinecontrolMessage) As String
         Try
             If response.IsCommand("MESSAGE") Then
@@ -179,7 +192,7 @@ Class ProtocolClient
                     Try
                         res += response.GetFieldValue("Item", index) & vbCrLf
                         index += 1
-                    Catch
+                    Catch ex As ArgumentOutOfRangeException
                         Exit Do
                     End Try
                 Loop
