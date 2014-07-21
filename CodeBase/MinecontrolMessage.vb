@@ -58,6 +58,9 @@ Class MinecontrolMessage
 
         line = IStream.ReadLine()
         If line <> PROTOCOL_HEADER Then
+            If line.Length = 0 Then
+                Throw New MinecontrolMessageFormatException("The server shutdown the connection.")
+            End If
             Throw New MinecontrolMessageFormatException("The server did not respond properly.")
         End If
 

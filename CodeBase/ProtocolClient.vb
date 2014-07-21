@@ -28,10 +28,10 @@ Class ProtocolClient
     Private server_version As String
     Private encryptor As CryptoSession
 
-    Sub New(ByVal Host As String, ByVal Port As String)
+    Sub New(ByVal ConnectInfo As ConnectOperationInfo)
         Dim nport As Integer
 
-        If Not Integer.TryParse(Port, nport) Then
+        If Not Integer.TryParse(ConnectInfo.Port, nport) Then
             Throw New ProtocolClientException("The port number you entered is incorrect.")
         End If
 
@@ -41,7 +41,7 @@ Class ProtocolClient
 
         Try
             ' try each address that was mapped from the host value
-            sock.Connect(Host, nport)
+            sock.Connect(ConnectInfo.Host, nport)
         Catch ex As SocketException
             If ex.SocketErrorCode = SocketError.HostUnreachable Then
                 Throw New ProtocolClientException("The remote host is unreachable.")
@@ -87,15 +87,17 @@ Class ProtocolClient
         sock = Nothing
     End Sub
 
-    Function IssueGenericCommand(ByVal Command As String, Optional ByVal Fields As Collection(Of KeyValuePair(Of String, String)) = Nothing) As String
-        Dim request = New MinecontrolMessage(Command)
+    Function IssueGenericCommand(ByVal GenericInfo As GenericOperationInfo) As String
+        Dim request = New MinecontrolMessage(GenericInfo.Command)
         Dim response As MinecontrolMessage
 
-        For Each kvp In Fields
-            request.AddField(kvp.Key, kvp.Value)
-        Next
-        writer.Write(request.Message)
+        If GenericInfo.Fields IsNot Nothing Then
+            For Each kvp In GenericInfo.Fields
+                request.AddField(kvp.Key, kvp.Value)
+            Next
+        End If
 
+        writer.Write(request.Message)
         response = New MinecontrolMessage(reader)
         Return response_to_string(response)
     End Function
@@ -105,15 +107,15 @@ Class ProtocolClient
         Return response_to_string(New MinecontrolMessage(reader))
     End Function
 
-    Function CommandLogin(ByVal Username As String, ByVal Password As String) As String
+    Function CommandLogin(ByVal LoginInfo As LoginOperationInfo) As String
         Dim request, response As MinecontrolMessage
         Dim enc_password As String = ""
 
-        If Not encryptor.EncryptBuffer(Password, enc_password) Then
+        If Not encryptor.EncryptBuffer(LoginInfo.Password, enc_password) Then
             Throw New ProtocolClientException("Could not encrypt password using ManagedSSL module")
         End If
         request = New MinecontrolMessage("LOGIN")
-        request.AddField("Username", Username)
+        request.AddField("Username", LoginInfo.Username)
         request.AddField("Password", enc_password)
         writer.Write(request.Message)
 
@@ -126,16 +128,15 @@ Class ProtocolClient
         Return response_to_string(New MinecontrolMessage(reader))
     End Function
 
-    Function CommandStart(ByVal ServerName As String, ByVal IsNew As Boolean, Optional ByVal ServerTime As Integer = -1, _
-                          Optional ByVal ServerProperties As Collection(Of KeyValuePair(Of String, String)) = Nothing) As String
+    Function CommandStart(ByVal StartInfo As StartOperationInfo) As String
         Dim request As New MinecontrolMessage("START")
-        request.AddField("ServerName", ServerName)
-        request.AddField("IsNew", If(IsNew, "true", "false"))
-        If ServerTime >= 0 Then
-            request.AddField("ServerTime", ServerTime.ToString())
+        request.AddField("ServerName", StartInfo.ServerName)
+        request.AddField("IsNew", If(StartInfo.IsNew, "true", "false"))
+        If StartInfo.ServerTime >= 0 Then
+            request.AddField("ServerTime", StartInfo.ServerTime.ToString())
         End If
-        If ServerProperties IsNot Nothing Then
-            For Each kvp In ServerProperties
+        If StartInfo.ServerProperties IsNot Nothing Then
+            For Each kvp In StartInfo.ServerProperties
                 request.AddField(kvp.Key, kvp.Value)
             Next
         End If
@@ -144,19 +145,19 @@ Class ProtocolClient
         Return response_to_string(New MinecontrolMessage(reader))
     End Function
 
-    Function CommandExtend(ByVal ServerID As Integer, ByVal ByHours As Integer) As String
+    Function CommandExtend(ByVal ExtendInfo As ExtendOperationInfo) As String
         Dim request = New MinecontrolMessage("EXTEND")
-        request.AddField("ServerID", ServerID.ToString())
-        request.AddField("Amount", ByHours.ToString())
+        request.AddField("ServerID", ExtendInfo.ServerID.ToString())
+        request.AddField("Amount", ExtendInfo.ByHours.ToString())
         writer.Write(request.Message)
 
         Return response_to_string(New MinecontrolMessage(reader))
     End Function
 
-    Function CommandExec(ByVal ServerID As Integer, ByVal CommandLine As String) As String
+    Function CommandExec(ByVal ExecInfo As ExecOperationInfo) As String
         Dim request = New MinecontrolMessage("EXEC")
-        request.AddField("ServerID", ServerID.ToString())
-        request.AddField("Command", CommandLine)
+        request.AddField("ServerID", ExecInfo.ServerID.ToString())
+        request.AddField("Command", ExecInfo.CommandLine)
         writer.Write(request.Message)
 
         Return response_to_string(New MinecontrolMessage(reader))
@@ -169,9 +170,12 @@ Class ProtocolClient
         Return response_to_string(New MinecontrolMessage(reader))
     End Function
 
-    Function CommandStop(ByVal ServerID As Integer) As String
+    Function CommandStop(ByVal StopInfo As StopOperationInfo) As String
         Dim request = New MinecontrolMessage("STOP")
-        request.AddField("ServerID", ServerID.ToString())
+        request.AddField("ServerID", StopInfo.ServerID.ToString())
+        If StopInfo.AuthPID > 0 Then
+            request.AddField("AuthPID", StopInfo.AuthPID.ToString())
+        End If
         writer.Write(request.Message)
 
         Return response_to_string(New MinecontrolMessage(reader))

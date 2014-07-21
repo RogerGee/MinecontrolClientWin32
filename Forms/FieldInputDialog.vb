@@ -9,8 +9,10 @@ Imports System.Windows.Forms
 Imports Microsoft.VisualBasic
 
 Class FieldInputDialog
+    Private focusme As Control
     Private fields As Collection(Of String)
     Private starty As Integer = 0
+    Private taborder As Integer = 0
 
     ReadOnly Property InputFields() As Collection(Of String)
         Get
@@ -41,6 +43,14 @@ Class FieldInputDialog
         boxInput.Location = New Point(lblInput.Location.X + lblInput.Width, starty)
         boxInput.Width = Me.ClientSize.Width - CInt(sz.Width) - 10
         boxInput.Text = DefaultValue
+        boxInput.TabIndex = taborder
+        If taborder = 0 Then
+            focusme = boxInput
+        End If
+        taborder += 1
+
+        OK_Button.TabIndex = taborder
+        Cancel_Button.TabIndex = taborder + 1
 
         starty += boxInput.Height + 10
         Me.Controls.Add(lblInput)
@@ -64,6 +74,14 @@ Class FieldInputDialog
         boxInput.Size = New Size(Me.ClientSize.Width - 10, CInt(sz.Height * 4.0!))
         boxInput.ScrollBars = ScrollBars.Vertical
         boxInput.Text = DefaultValue
+        boxInput.TabIndex = taborder
+        If taborder = 0 Then
+            focusme = boxInput
+        End If
+        taborder += 1
+
+        OK_Button.TabIndex = taborder
+        Cancel_Button.TabIndex = taborder + 1
 
         starty += boxInput.Height + 10
         Me.Controls.Add(lblInput)
@@ -90,4 +108,9 @@ Class FieldInputDialog
         Me.Close()
     End Sub
 
+    Private Sub FieldInputDialog_Shown(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Shown
+        If focusme IsNot Nothing Then
+            focusme.Select()
+        End If
+    End Sub
 End Class

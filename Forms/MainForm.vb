@@ -4,6 +4,7 @@ Option Strict On
 
 Imports System
 Imports System.IO
+Imports System.Threading
 Imports System.Windows.Forms
 Imports System.Collections.Generic
 Imports System.Collections.ObjectModel
@@ -11,10 +12,12 @@ Imports Microsoft.VisualBasic
 
 Public Class MainForm
     Private Declare Function HideCaret Lib "User32.dll" (ByVal HWND As IntPtr) As Integer
+    Private Delegate Sub NetworkOperationCallback(ByVal result As String)
 
-    ' data
+    ' data members
     Private console_mode As Boolean = False ' Are we in console mode?
-    Private con As ProtocolClient
+    Private con As ProtocolClient = Nothing ' This is the connection to the minecontrol server.
+    Private op As Thread = Nothing ' This refers to the current asynchronous operation.
 
     Sub New()
         ' This call is required by the pesky designer.
@@ -37,9 +40,26 @@ Public Class MainForm
         HideCaret(rboxOutput.Handle)
     End Sub
 
+    Private Sub generic_Async(ByVal param As Object)
+        Dim info As GenericOperationInfo
+        info = CType(param, GenericOperationInfo)
+
+        generic_Result(con.IssueGenericCommand(info))
+    End Sub
+    Private Sub generic_Result(ByVal result As String)
+        If IsDisposed Then Exit Sub
+        If InvokeRequired Then
+            Invoke(New NetworkOperationCallback(AddressOf generic_Result), New Object() {result})
+            Exit Sub
+        End If
+
+        PrependOutput(result & vbCrLf)
+        op = Nothing
+    End Sub
+
     Private Sub btnConnect_Click(ByVal sender As Object, ByVal e As EventArgs) Handles btnConnect.Click
         If con Is Nothing Then
-            Dim cont As Boolean
+            If op IsNot Nothing Then Return
 
             ' check control fields
             If boxHost.TextLength = 0 Then
@@ -50,24 +70,60 @@ Public Class MainForm
                 Return
             End If
 
-            Do
-                cont = False
-                Try
-                    con = New ProtocolClient(boxHost.Text, udPortSelect.Value.ToString())
-                Catch ex As ProtocolClientException
-                    If MessageBox.Show("Failed to connect: " & ex.Message, CLIENT_PROGRAM_NAME, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) _
-                        = Windows.Forms.DialogResult.Retry Then
-                        cont = True
-                    Else
-                        Return
-                    End If
-                End Try
-            Loop While cont
+            ' display a message indicating the connect process
+            PrependOutput("Connecting to " & boxHost.Text & "..." & vbCrLf)
 
-            ' lock out controls while connection is established
-            ConnectControlsState(True)
+            ' perform the connect operation on another thread
+            Dim params As ConnectOperationInfo
+            params.Host = boxHost.Text
+            params.Port = udPortSelect.Value.ToString()
+            op = New Thread(New ParameterizedThreadStart(AddressOf Me.connect_Async))
+            op.Start(params)
         Else
             MessageBox.Show("A connection is already established to " & con.ToString(), CLIENT_PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+        End If
+    End Sub
+    Private Sub connect_Async(ByVal param As Object)
+        Dim info As ConnectOperationInfo
+        info = CType(param, ConnectOperationInfo)
+
+        Try
+            con = New ProtocolClient(info)
+        Catch ex As ProtocolClientException
+            connect_Failure("Failed to connect to " & info.Host & ": " & ex.Message)
+            Exit Sub
+        End Try
+
+        connect_Success("Successful connection established to " & info.Host)
+    End Sub
+    Private Sub connect_Success(ByVal result As String)
+        If IsDisposed Then Exit Sub
+        If InvokeRequired Then
+            Invoke(New NetworkOperationCallback(AddressOf connect_Success), New Object() {result})
+            Exit Sub
+        End If
+
+        ' display result
+        PrependOutput(result & vbCrLf)
+
+        ' lock out controls while connection is established
+        ConnectControlsState(True)
+
+        op = Nothing
+    End Sub
+    Private Sub connect_Failure(ByVal result As String)
+        If IsDisposed Then Exit Sub
+        If InvokeRequired Then
+            Invoke(New NetworkOperationCallback(AddressOf connect_Failure), New Object() {result})
+            Exit Sub
+        End If
+
+        PrependOutput("connect failed" & vbCrLf)
+
+        ' display error message and prompt for retry
+        op = Nothing
+        If MessageBox.Show(result, CLIENT_PROGRAM_NAME, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) = Windows.Forms.DialogResult.Retry Then
+            btnConnect.PerformClick()
         End If
     End Sub
 
@@ -76,45 +132,53 @@ Public Class MainForm
         ResetControls()
         con = Nothing
         ConnectControlsState(False)
-        rboxOutput.Clear()
         boxCommand.Clear()
+        PrependOutput("Connection shutdown" & vbCrLf)
     End Sub
 
     Private Sub boxCommand_Enter(ByVal sender As Object, ByVal e As KeyEventArgs) Handles boxCommand.KeyUp
-        If con IsNot Nothing AndAlso e.KeyCode = Keys.Enter Then
+        If con IsNot Nothing AndAlso op Is Nothing AndAlso e.KeyCode = Keys.Enter Then
             Dim tokens = boxCommand.Text.Split()
             If tokens.Length = 0 Then
                 Exit Sub
             End If
+
+            Dim tstart As ParameterizedThreadStart = Nothing
+            Dim info As Object = Nothing
 
             Select Case tokens(0)
                 Case "login"
                     If tokens.Length < 3 Then
                         PrependOutput("usage: start login password" & vbCrLf)
                     Else
-                        PrependOutput(con.CommandLogin(tokens(1), tokens(2)) & vbCrLf)
+                        Dim param As LoginOperationInfo
+                        param.Username = tokens(1)
+                        param.Password = tokens(2)
+
+                        tstart = New ParameterizedThreadStart(AddressOf login_Async)
+                        info = param
                     End If
                 Case "logout"
-                    PrependOutput(con.CommandLogout() & vbCrLf)
+                    tstart = New ParameterizedThreadStart(AddressOf logout_Async)
+                    info = Nothing
                 Case "start"
                     If tokens.Length < 2 Then
                         PrependOutput("usage: start [create] world-name [[prop=key]...]" & vbCrLf)
                     Else
+                        Dim params As StartOperationInfo
                         Dim i As Integer
-                        Dim world As String
-                        Dim isnew As Boolean
                         If tokens(1).ToLower() = "create" Then
                             If tokens.Length < 3 Then
                                 PrependOutput("expected world-name after 'create'" & vbCrLf)
                                 Return
                             End If
-                            world = tokens(2)
+                            params.ServerName = tokens(2)
                             i = 3
-                            isnew = True
+                            params.IsNew = True
                         Else
-                            world = tokens(1)
+                            params.ServerName = tokens(1)
                             i = 2
-                            isnew = False
+                            params.IsNew = False
                         End If
 
                         ' recreate the command line for the properties
@@ -125,76 +189,84 @@ Public Class MainForm
                             i += 1
                         End While
 
-                        Dim serverTime = -1
-                        Dim props As New Collection(Of KeyValuePair(Of String, String))
+                        params.ServerTime = -1 ' don't set time unless user specifies it
+                        params.ServerProperties = New Collection(Of KeyValuePair(Of String, String))
                         tokens = s.Split("\".ToCharArray())
                         For Each tok In tokens
                             Dim parts = tok.Split("=".ToCharArray())
                             If parts.Length >= 2 Then
                                 If parts(0).ToLower() = "servertime" Then
-                                    Integer.TryParse(parts(1), serverTime)
+                                    Integer.TryParse(parts(1), params.ServerTime)
                                 Else
-                                    props.Add(New KeyValuePair(Of String, String)(parts(0).Trim(), parts(1).Trim()))
+                                    params.ServerProperties.Add(New KeyValuePair(Of String, String)(parts(0).Trim(), parts(1).Trim()))
                                 End If
                             End If
                         Next
 
-                        PrependOutput(con.CommandStart(world, isnew, serverTime, props) & vbCrLf)
+                        tstart = New ParameterizedThreadStart(AddressOf start_Async)
+                        info = params
                     End If
                 Case "stop"
                     If tokens.Length < 2 Then
-                        PrependOutput("usage: stop server-id" & vbCrLf)
+                        PrependOutput("usage: stop server-id [authority-process-ID]" & vbCrLf)
                     Else
-                        Dim id As Integer
-                        If Not Integer.TryParse(tokens(1), id) Then
+                        Dim params As StopOperationInfo
+                        params.AuthPID = -1
+                        If Not Integer.TryParse(tokens(1), params.ServerID) Then
                             PrependOutput("ServerID must be an integer" & vbCrLf)
+                        ElseIf tokens.Length >= 3 AndAlso Not Integer.TryParse(tokens(2), params.AuthPID) Then
+                            PrependOutput("AuthPID must be an integer" & vbCrLf)
                         Else
-                            PrependOutput(con.CommandStop(id) & vbCrLf)
+                            tstart = New ParameterizedThreadStart(AddressOf stop_Async)
+                            info = params
                         End If
                     End If
                 Case "exec"
                     If tokens.Length < 3 Then
                         PrependOutput("usage: exec server-id command-line")
                     Else
-                        Dim id As Integer
-                        If Not Integer.TryParse(tokens(1), id) Then
+                        Dim params As ExecOperationInfo
+                        If Not Integer.TryParse(tokens(1), params.ServerID) Then
                             PrependOutput("ServerID must be an integer" & vbCrLf)
                         Else
-                            Dim cmdline As String = ""
-
                             ' prepare commandline from tokens
+                            params.CommandLine = String.Empty
                             For i = 2 To tokens.Length - 1
-                                cmdline += tokens(i)
-                                cmdline += " "
+                                params.CommandLine += tokens(i)
+                                params.CommandLine += " "
                             Next
 
-                            PrependOutput(con.CommandExec(id, cmdline) & vbCrLf)
+                            tstart = New ParameterizedThreadStart(AddressOf exec_Async)
+                            info = params
                         End If
                     End If
                 Case "extend"
                     If tokens.Length < 3 Then
-                        PrependOutput("usage: extend server-id hours" & vbCrLf)
+                        PrependOutput("usage: extend server-id amount" & vbCrLf)
                     Else
-                        Dim hours As Integer
-                        Dim id As Integer
+                        Dim params As ExtendOperationInfo
 
-                        If Not Integer.TryParse(tokens(1), id) Then
+                        If Not Integer.TryParse(tokens(1), params.ServerID) Then
                             PrependOutput("server-id wasn't an integer" & vbCrLf)
-                        ElseIf Not Integer.TryParse(tokens(2), hours) Then
-                            PrependOutput("hours wasn't an integer" & vbCrLf)
+                        ElseIf Not Integer.TryParse(tokens(2), params.ByHours) Then
+                            PrependOutput("amount wasn't an integer" & vbCrLf)
                         Else
-                            PrependOutput(con.CommandExtend(id, hours) & vbCrLf)
+                            tstart = New ParameterizedThreadStart(AddressOf extend_Async)
+                            info = params
                         End If
                     End If
                 Case "status"
-                    PrependOutput(con.CommandStatus() & vbCrLf)
+                    tstart = New ParameterizedThreadStart(AddressOf status_Async)
+                    info = Nothing
                 Case "console"
                 Case "shutdown"
-                    PrependOutput(con.CommandShutdown() & vbCrLf)
+                    tstart = New ParameterizedThreadStart(AddressOf shutdown_Async)
+                    info = Nothing
                 Case Else
                     Dim s As String = ""
-                    Dim cmd = tokens(0)
-                    Dim props As New Collection(Of KeyValuePair(Of String, String))
+                    Dim params As GenericOperationInfo
+                    params.Command = tokens(0)
+                    params.Fields = New Collection(Of KeyValuePair(Of String, String))
 
                     For i = 1 To tokens.Length - 1
                         s += tokens(1)
@@ -205,12 +277,18 @@ Public Class MainForm
                     For Each tok In tokens
                         Dim parts = tok.Split("=".ToCharArray())
                         If parts.Length >= 2 Then
-                            props.Add(New KeyValuePair(Of String, String)(parts(0).Trim(), parts(1).Trim()))
+                            params.Fields.Add(New KeyValuePair(Of String, String)(parts(0).Trim(), parts(1).Trim()))
                         End If
                     Next
 
-                    PrependOutput(con.IssueGenericCommand(cmd, props) & vbCrLf)
+                    tstart = New ParameterizedThreadStart(AddressOf generic_Async)
+                    info = params
             End Select
+
+            If tstart IsNot Nothing Then
+                op = New Thread(tstart)
+                op.Start(info)
+            End If
 
             boxCommand.Clear()
             boxCommand.Focus()
@@ -243,29 +321,53 @@ Public Class MainForm
 
     ' Minecontrol server commands
     Private Sub LoginToolStripMenuItem_Click(ByVal sender As Object, ByVal e As EventArgs) Handles LoginToolStripMenuItem.Click
-        If con IsNot Nothing Then
+        If con IsNot Nothing AndAlso op Is Nothing Then
             ' check controls for credentials
             If boxUname.TextLength = 0 OrElse boxPassword.TextLength = 0 Then
                 MessageBox.Show("Enter username and password credentials", CLIENT_PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                 Return
             End If
 
-            Dim result = con.CommandLogin(boxUname.Text, boxPassword.Text)
-            PrependOutput(result & vbCrLf)
+            Dim param As LoginOperationInfo
+            param.Username = boxUname.Text
+            param.Password = boxPassword.Text
 
-            boxUname.Clear()
-            boxPassword.Clear()
+            op = New Thread(New ParameterizedThreadStart(AddressOf login_Async))
+            op.Start(param)
         End If
+    End Sub
+    Private Sub login_Async(ByVal param As Object)
+        Dim info As LoginOperationInfo
+        info = CType(param, LoginOperationInfo)
+
+        login_Result(con.CommandLogin(info))
+    End Sub
+    Private Sub login_Result(ByVal result As String)
+        If IsDisposed Then Exit Sub
+        If InvokeRequired Then
+            Invoke(New NetworkOperationCallback(AddressOf login_Result), New Object() {result})
+            Exit Sub
+        End If
+
+        PrependOutput(result & vbCrLf)
+
+        boxUname.Clear()
+        boxPassword.Clear()
+        op = Nothing
     End Sub
 
     Private Sub LogoutToolStripMenuItem_Click(ByVal sender As Object, ByVal e As EventArgs) Handles LogoutToolStripMenuItem.Click
-        If con IsNot Nothing Then
-            PrependOutput(con.CommandLogout() & vbCrLf)
+        If con IsNot Nothing AndAlso op Is Nothing Then
+            op = New Thread(New ParameterizedThreadStart(AddressOf logout_Async))
+            op.Start(Nothing)
         End If
+    End Sub
+    Private Sub logout_Async(ByVal param As Object)
+        generic_Result(con.CommandLogout() & vbCrLf)
     End Sub
 
     Private Sub StartToolStripMenuItem_Click(ByVal sender As Object, ByVal e As EventArgs) Handles StartToolStripMenuItem.Click
-        If con IsNot Nothing Then
+        If con IsNot Nothing AndAlso op Is Nothing Then
             Dim dialog As New FieldInputDialog("Start Server")
 
             dialog.AddFieldInput("World Name")
@@ -275,6 +377,7 @@ Public Class MainForm
 
             If dialog.ShowDialog() = Windows.Forms.DialogResult.OK Then
                 If dialog.InputFields.Count < 4 Then
+                    ' assertion
                     Stop
                 End If
 
@@ -316,9 +419,22 @@ Public Class MainForm
                     Next
                 End If
 
-                PrependOutput(con.CommandStart(dialog.InputFields(0), dialog.InputFields(1).ToLower() = "true", time, props) & vbCrLf)
+                Dim params As StartOperationInfo
+                params.ServerName = dialog.InputFields(0)
+                params.IsNew = dialog.InputFields(1).ToLower() = "true"
+                params.ServerTime = time
+                params.ServerProperties = props
+
+                op = New Thread(New ParameterizedThreadStart(AddressOf start_Async))
+                op.Start(params)
             End If
         End If
+    End Sub
+    Private Sub start_Async(ByVal param As Object)
+        Dim info As StartOperationInfo
+        info = CType(param, StartOperationInfo)
+
+        generic_Result(con.CommandStart(info))
     End Sub
 
     Private Sub StopToolStripMenuItem_Click(ByVal sender As Object, ByVal e As EventArgs) Handles StopToolStripMenuItem.Click
@@ -326,44 +442,128 @@ Public Class MainForm
             Dim dialog As New FieldInputDialog("Stop Server")
 
             dialog.AddFieldInput("Server ID")
+            dialog.AddFieldInput("Authority Process ID")
 
             If dialog.ShowDialog() = Windows.Forms.DialogResult.OK Then
-                If dialog.InputFields.Count = 0 Then
+                If dialog.InputFields.Count < 2 Then
+                    ' assertion
                     Stop
                 End If
 
                 Dim id As Integer
-                If Not Integer.TryParse(dialog.InputFields(0), id) Then
+                Dim pid As Integer = -1
+                If Not Integer.TryParse(dialog.InputFields(0), id) OrElse (dialog.InputFields(1).Length > 0 AndAlso _
+                                                                           Not Integer.TryParse(dialog.InputFields(1), pid)) Then
                     MessageBox.Show("Could not convert ID value to an integer", CLIENT_PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Exit Sub
                 End If
-                PrependOutput(con.CommandStop(id) & vbCrLf)
+
+                Dim params As StopOperationInfo
+                params.ServerID = id
+                params.AuthPID = pid
+
+                op = New Thread(New ParameterizedThreadStart(AddressOf stop_Async))
+                op.Start(params)
             End If
         End If
     End Sub
+    Private Sub stop_Async(ByVal param As Object)
+        Dim info As StopOperationInfo
+        info = CType(param, StopOperationInfo)
+
+        generic_Result(con.CommandStop(info))
+    End Sub
 
     Private Sub ExtendToolStripMenuItem_Click(ByVal sender As Object, ByVal e As EventArgs) Handles ExtendToolStripMenuItem.Click
+        If con IsNot Nothing AndAlso op Is Nothing Then
+            Dim dialog As New FieldInputDialog("Extend Server Time")
+            dialog.AddFieldInput("ServerID")
+            dialog.AddFieldInput("Hours to Extend")
 
+            If dialog.ShowDialog() = Windows.Forms.DialogResult.OK Then
+                If dialog.InputFields.Count < 2 Then
+                    ' assertion
+                    Stop
+                End If
+
+                Dim params As ExtendOperationInfo
+
+                If Not Integer.TryParse(dialog.InputFields(0), params.ServerID) Then
+                    MessageBox.Show("Server ID must be an integer", CLIENT_PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Exit Sub
+                End If
+                If Not Integer.TryParse(dialog.InputFields(1), params.ByHours) Then
+                    MessageBox.Show("Extend amount must be an integer", CLIENT_PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Exit Sub
+                End If
+
+                op = New Thread(New ParameterizedThreadStart(AddressOf extend_Async))
+                op.Start(params)
+            End If
+        End If
+    End Sub
+    Private Sub extend_Async(ByVal param As Object)
+        Dim info As ExtendOperationInfo
+        info = CType(param, ExtendOperationInfo)
+
+        generic_Result(con.CommandExtend(info))
     End Sub
 
     Private Sub ExecMenuItem_Click(ByVal sender As Object, ByVal e As EventArgs) Handles ExecMenuItem.Click
+        If con IsNot Nothing AndAlso op Is Nothing Then
+            Dim dialog As New FieldInputDialog("Execute Authority Program")
+            dialog.AddFieldInput("ServerID")
+            dialog.AddFieldInput("Command Line")
 
+            If dialog.ShowDialog() = Windows.Forms.DialogResult.OK Then
+                If dialog.InputFields.Count < 2 Then
+                    ' assertion
+                    Stop
+                End If
+
+                Dim params As ExecOperationInfo
+
+                If Not Integer.TryParse(dialog.InputFields(0), params.ServerID) Then
+                    MessageBox.Show("Server ID must be an integer", CLIENT_PROGRAM_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Exit Sub
+                End If
+                params.CommandLine = dialog.InputFields(1)
+
+                op = New Thread(New ParameterizedThreadStart(AddressOf exec_Async))
+                op.Start(params)
+            End If
+        End If
+    End Sub
+    Private Sub exec_Async(ByVal param As Object)
+        Dim info As ExecOperationInfo
+        info = CType(param, ExecOperationInfo)
+
+        generic_Result(con.CommandExec(info))
     End Sub
 
     Private Sub StatusToolStripMenuItem_Click(ByVal sender As Object, ByVal e As EventArgs) Handles StatusToolStripMenuItem.Click
-        If con IsNot Nothing Then
-            PrependOutput(con.CommandStatus() & vbCrLf)
+        If con IsNot Nothing AndAlso op Is Nothing Then
+            op = New Thread(New ParameterizedThreadStart(AddressOf status_Async))
+            op.Start(Nothing)
         End If
     End Sub
+    Private Sub status_Async(ByVal param As Object)
+        generic_Result(con.CommandStatus())
+    End Sub
+
 
     Private Sub ConsoleToolStripMenuItem_Click(ByVal sender As Object, ByVal e As EventArgs) Handles ConsoleToolStripMenuItem.Click
 
     End Sub
 
     Private Sub ShutdownToolStripMenuItem_Click(ByVal sender As Object, ByVal e As EventArgs) Handles ShutdownToolStripMenuItem.Click
-        If con IsNot Nothing Then
-            PrependOutput(con.CommandShutdown() & vbCrLf)
+        If con IsNot Nothing AndAlso op Is Nothing Then
+            op = New Thread(New ParameterizedThreadStart(AddressOf shutdown_Async))
+            op.Start(Nothing)
         End If
+    End Sub
+    Private Sub shutdown_Async(ByVal param As Object)
+        generic_Result(con.CommandShutdown())
     End Sub
 
     Private Sub ResetControls()
