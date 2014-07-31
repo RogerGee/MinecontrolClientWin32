@@ -62,15 +62,15 @@ Commands (that the client may issue):
 		EXEC
 		 ServerID: integer-id
 		 Command: string-command-line
-        STOP
-         ServerID: integer-id
-        CONSOLE
+		STOP
+		 ServerID: integer-id
+		CONSOLE
 		 ServerID: integer-id
 		CONSOLE-COMMAND
 		 ServerCommand: string-command
 		 (may continue)
 		CONSOLE-QUIT
-        SHUTDOWN
+		SHUTDOWN
 -------------------------------------------------------------------
 Response-Commands (with which the server may respond):
  *this client will never send any of these

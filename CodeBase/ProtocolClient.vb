@@ -101,6 +101,35 @@ Class ProtocolClient
         response = New MinecontrolMessage(reader)
         Return response_to_string(response)
     End Function
+	
+	' Return the raw response object instead of the message string from the response
+	Function IssueGenericCommand_Ex(ByVal GenericInfo As GenericOperationInfo) As MinecontrolMessage
+        Dim request = New MinecontrolMessage(GenericInfo.Command)
+        Dim response As MinecontrolMessage
+
+        If GenericInfo.Fields IsNot Nothing Then
+            For Each kvp In GenericInfo.Fields
+                request.AddField(kvp.Key, kvp.Value)
+            Next
+        End If
+
+        writer.Write(request.Message)
+        response = New MinecontrolMessage(reader)
+		Return response
+	End Function
+	
+	' Don't wait for an immediate response after sending the message
+	Sub IssueGenericCommand_NoResponse(ByVal GenericInfo As GenericOperationInfo)
+		Dim request = New MinecontrolMessage(GenericInfo.Command)
+
+		If GenericInfo.Fields IsNot Nothing Then
+            For Each kvp In GenericInfo.Fields
+                request.AddField(kvp.Key, kvp.Value)
+            Next
+        End If
+		
+		writer.Write(request.Message)
+	End Sub
 
     Function CommandStatus() As String
         writer.Write(New MinecontrolMessage("STATUS"))

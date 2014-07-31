@@ -135,6 +135,12 @@ Public Class MainForm
         boxCommand.Clear()
         PrependOutput("Connection shutdown" & vbCrLf)
     End Sub
+	
+	Private Sub boxCommand_KeyPress(ByVal sender As Object, ByVal e As KeyPressEventArgs) Handles boxCommand.KeyPress
+		If con Is Nothing OrElse e.KeyChar = ControlChars.Cr Then
+			e.Handled = True
+		End If
+	End Sub
 
     Private Sub boxCommand_Enter(ByVal sender As Object, ByVal e As KeyEventArgs) Handles boxCommand.KeyUp
         If con IsNot Nothing AndAlso op Is Nothing AndAlso e.KeyCode = Keys.Enter Then
@@ -142,6 +148,9 @@ Public Class MainForm
             If tokens.Length = 0 Then
                 Exit Sub
             End If
+			If tokens(0).Length = 0 Then
+				Exit Sub
+			End If
 
             Dim tstart As ParameterizedThreadStart = Nothing
             Dim info As Object = Nothing
