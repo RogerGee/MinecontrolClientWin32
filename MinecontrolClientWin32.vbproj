@@ -64,8 +64,9 @@
   <ItemGroup>
     <Compile Include="CodeBase\MinecontrolClient.vb" />
     <Compile Include="CodeBase\MinecontrolMessage.vb" />
+    <Compile Include="CodeBase\MinecraftConsole.vb" />
     <Compile Include="CodeBase\ProtocolClient.vb" />
-	<Compile Include="CodeBase\OperationInfo.vb" />
+    <Compile Include="CodeBase\OperationInfo.vb" />
     <Compile Include="Forms\FieldInputDialog.Designer.vb">
       <DependentUpon>FieldInputDialog.vb</DependentUpon>
     </Compile>

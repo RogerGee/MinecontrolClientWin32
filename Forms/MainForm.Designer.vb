@@ -25,6 +25,7 @@ Partial Class MainForm
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.tsSaveProfile = New System.Windows.Forms.ToolStripMenuItem()
+        Me.tsSaveProfileAs = New System.Windows.Forms.ToolStripMenuItem()
         Me.SaveServerOutputAsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -68,7 +69,7 @@ Partial Class MainForm
         '
         'FileToolStripMenuItem
         '
-        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tsSaveProfile, Me.SaveServerOutputAsToolStripMenuItem, Me.ToolStripSeparator2, Me.ExitToolStripMenuItem})
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tsSaveProfile, Me.tsSaveProfileAs, Me.SaveServerOutputAsToolStripMenuItem, Me.ToolStripSeparator2, Me.ExitToolStripMenuItem})
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.FileToolStripMenuItem.Text = "File"
@@ -78,6 +79,12 @@ Partial Class MainForm
         Me.tsSaveProfile.Name = "tsSaveProfile"
         Me.tsSaveProfile.Size = New System.Drawing.Size(199, 22)
         Me.tsSaveProfile.Text = "Save Profile"
+        '
+        'tsSaveProfileAs
+        '
+        Me.tsSaveProfileAs.Name = "tsSaveProfileAs"
+        Me.tsSaveProfileAs.Size = New System.Drawing.Size(199, 22)
+        Me.tsSaveProfileAs.Text = "Save Profile As..."
         '
         'SaveServerOutputAsToolStripMenuItem
         '
@@ -359,4 +366,5 @@ Partial Class MainForm
     Friend WithEvents ShutdownToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents tsSaveProfile As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents lboxConfig As System.Windows.Forms.ListBox
+    Friend WithEvents tsSaveProfileAs As System.Windows.Forms.ToolStripMenuItem
 End Class

@@ -129,7 +129,12 @@ Class ProtocolClient
         End If
 		
 		writer.Write(request.Message)
-	End Sub
+    End Sub
+
+    ' Waits for a message from the minecontrol server (doesn't send a message first)
+    Function BlockForMessage() As MinecontrolMessage
+        Return New MinecontrolMessage(reader)
+    End Function
 
     Function CommandStatus() As String
         writer.Write(New MinecontrolMessage("STATUS"))
