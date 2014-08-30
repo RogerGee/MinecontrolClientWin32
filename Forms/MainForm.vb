@@ -656,9 +656,11 @@ Public Class MainForm
     End Sub
 
     Private Sub PrependOutput(ByVal output As String)
-        rboxOutput.SelectionStart = 0
-        rboxOutput.SelectionLength = 0
-        rboxOutput.SelectedText = output
+		If Not rboxOutput.IsDisposed Then
+			rboxOutput.SelectionStart = 0
+			rboxOutput.SelectionLength = 0
+			rboxOutput.SelectedText = output
+		End If
     End Sub
 
     Private Sub tsSaveProfile_Click(ByVal sender As Object, ByVal e As EventArgs) Handles tsSaveProfile.Click
