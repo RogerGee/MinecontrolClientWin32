@@ -8,11 +8,11 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{8577545E-C866-481F-BD32-607737CE19A2}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>MinecontrolClient.My.MyApplication</StartupObject>
+    <StartupObject>Sub Main</StartupObject>
     <RootNamespace>MinecontrolClient</RootNamespace>
     <AssemblyName>MinecontrolClient</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <MyType>WindowsForms</MyType>
+    <MyType>WindowsFormsWithCustomSubMain</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
@@ -47,6 +47,10 @@
   </PropertyGroup>
   <PropertyGroup>
     <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationIcon>AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CodeBase\MinecontrolClient.vb" />
@@ -86,6 +90,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AppIcon.ico" />
     <Content Include="MinecontrolProtocol.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
