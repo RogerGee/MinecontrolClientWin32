@@ -9,8 +9,8 @@ Imports System.Collections.ObjectModel
 Imports Microsoft.VisualBasic
 
 Class ConsoleModeException
-	Inherits Exception
-	
+    Inherits Exception
+    
     Sub New(ByVal ErrorMessage As String)
         MyBase.New(ErrorMessage)
     End Sub
@@ -23,11 +23,11 @@ Delegate Sub ConsoleMessageReceivedCallback(ByVal MessageString As String)
 Class MinecraftConsole
     Event ConsoleMessageReceived(ByVal message As String)
     Event ConsoleModeTerminated()
-	
-	Private con As ProtocolClient
+    
+    Private con As ProtocolClient
     Private pollthrd As Thread
     Private msgthrd As Thread
-	Private checkpoll As Boolean = False
+    Private checkpoll As Boolean = False
     Private pollobject As Object = Nothing
     Private doterm As Boolean = False
 
@@ -77,13 +77,13 @@ Class MinecraftConsole
         msgthrd.Start()
         pollthrd.Start()
     End Sub
-	
-	Sub EnterCommand(ByVal Command As String)
-		pollobject = Command
-		checkpoll = True
-	End Sub
-	
-	Sub CloseConsoleMode()
+    
+    Sub EnterCommand(ByVal Command As String)
+        pollobject = Command
+        checkpoll = True
+    End Sub
+    
+    Sub CloseConsoleMode()
         pollobject = "quit"
         checkpoll = True
 
@@ -91,9 +91,9 @@ Class MinecraftConsole
         While Not doterm
             Thread.Sleep(250)
         End While
-	End Sub
-	
-	Private Sub PollThread()
+    End Sub
+    
+    Private Sub PollThread()
         Do
             If doterm Then
                 checkpoll = False
@@ -125,12 +125,12 @@ Class MinecraftConsole
 
             Thread.Sleep(250)
         Loop
-	End Sub
-	
-	Private Sub MessageThread()
+    End Sub
+    
+    Private Sub MessageThread()
         ' listen for CONSOLE-MESSAGEs; if we receive status=shutdown
-		' then we quit this thread
-		Do
+        ' then we quit this thread
+        Do
             Dim msg = con.BlockForMessage()
 
             If Not msg.IsCommand("CONSOLE-MESSAGE") Then
@@ -151,6 +151,6 @@ Class MinecraftConsole
                 doterm = True
                 Exit Do
             End Try
-		Loop
-	End Sub
+        Loop
+    End Sub
 End Class

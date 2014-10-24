@@ -136,12 +136,12 @@ Public Class MainForm
         boxCommand.Clear()
         PrependOutput("Connection shutdown" & vbCrLf)
     End Sub
-	
-	Private Sub boxCommand_KeyPress(ByVal sender As Object, ByVal e As KeyPressEventArgs) Handles boxCommand.KeyPress
-		If con Is Nothing OrElse e.KeyChar = ControlChars.Cr Then
-			e.Handled = True
-		End If
-	End Sub
+    
+    Private Sub boxCommand_KeyPress(ByVal sender As Object, ByVal e As KeyPressEventArgs) Handles boxCommand.KeyPress
+        If con Is Nothing OrElse e.KeyChar = ControlChars.Cr Then
+            e.Handled = True
+        End If
+    End Sub
 
     Private Sub boxCommand_Enter(ByVal sender As Object, ByVal e As KeyEventArgs) Handles boxCommand.KeyUp
         If con IsNot Nothing AndAlso op Is Nothing AndAlso e.KeyCode = Keys.Enter Then
@@ -656,11 +656,11 @@ Public Class MainForm
     End Sub
 
     Private Sub PrependOutput(ByVal output As String)
-		If Not rboxOutput.IsDisposed Then
-			rboxOutput.SelectionStart = 0
-			rboxOutput.SelectionLength = 0
-			rboxOutput.SelectedText = output
-		End If
+        If Not rboxOutput.IsDisposed Then
+            rboxOutput.SelectionStart = 0
+            rboxOutput.SelectionLength = 0
+            rboxOutput.SelectedText = output
+        End If
     End Sub
 
     Private Sub tsSaveProfile_Click(ByVal sender As Object, ByVal e As EventArgs) Handles tsSaveProfile.Click
